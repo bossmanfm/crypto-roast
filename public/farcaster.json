@@ -1,0 +1,17 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEyMzQsInR5cGUiOiJjcmVhdG9yIiwia2V5IjoiMHhFRkYifQ",
+    "payload": "eyJkb21haW4iOiJjcnlwdG8tcm9hc3QudmVyY2VsLmFwcCJ9",
+    "signature": "MHhhYjEy..."
+  },
+  "frame": {
+    "version": "1",
+    "name": "Crypto Roast",
+    "iconUrl": "https://crypto-roast.vercel.app/icon.png",
+    "homeUrl": "https://crypto-roast.vercel.app",
+    "imageUrl": "https://crypto-roast.vercel.app/og.png",
+    "buttonTitle": "Get Roasted",
+    "splashImageUrl": "https://crypto-roast.vercel.app/splash.png",
+    "splashBackgroundColor": "#0a0a0f"
+  }
+}
