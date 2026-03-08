@@ -65,6 +65,7 @@ export default function Home() {
         erc20Count: data.erc20Count,
         avgTxPerDay: data.avgTxPerDay,
         contractDiversity: data.contractDiversity,
+        activeChains: data.activeChains,
       })
       setRoast(result)
     } catch {
@@ -218,7 +219,7 @@ export default function Home() {
                       ) : <span>ROAST THIS WALLET 🔥</span>}
                     </button>
                   </div>
-                  <p className="text-gray-600 text-xs text-center mt-4">Powered by Basescan + Alchemy</p>
+                  <p className="text-gray-600 text-xs text-center mt-4">Powered by Etherscan V2 + Alchemy</p>
                 </div>
               )}
 
@@ -274,16 +275,45 @@ export default function Home() {
                   {analysis && (
                     <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
                       {[
-                        { label: 'Txs', value: roast.stats.txCount },
+                        { label: 'Total Txs', value: roast.stats.txCount },
                         { label: 'Failed', value: roast.stats.failedTxs },
                         { label: 'NFTs', value: roast.stats.nftCount },
                         { label: 'Contracts', value: roast.stats.uniqueContracts },
                         { label: 'Tokens', value: roast.stats.erc20Count },
-                        { label: 'Days Old', value: roast.stats.walletAgeDays },
+                        { label: 'Active Chains', value: roast.stats.activeChains ?? analysis.activeChains },
                       ].map(s => (
                         <div key={s.label} className="rounded-xl py-2 px-1" style={{background: 'rgba(255,255,255,0.04)'}}>
                           <p className="font-black text-white text-sm">{s.value}</p>
                           <p className="text-gray-600">{s.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Multi-chain breakdown */}
+                  {analysis && analysis.chains && analysis.chains.length > 0 && (
+                    <div className="mb-4 rounded-2xl overflow-hidden" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)'}}>
+                      <p className="text-gray-600 text-xs uppercase tracking-widest px-3 pt-3 pb-2 font-semibold">Chain Activity</p>
+                      {analysis.chains.map(c => (
+                        <div key={c.chainKey} className="flex items-center gap-3 px-3 py-2 border-t border-white/5">
+                          <span className="text-base w-5 text-center">{c.emoji}</span>
+                          <span className="text-gray-400 text-xs w-20 text-left">{c.chainName}</span>
+                          {c.txCount > 0 ? (
+                            <>
+                              <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-400"
+                                  style={{ width: `${Math.min(100, (c.txCount / Math.max(...analysis.chains.map(x => x.txCount), 1)) * 100)}%` }}
+                                />
+                              </div>
+                              <span className="text-white text-xs font-bold w-12 text-right">{c.txCount} txs</span>
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex-1 h-1 rounded-full bg-white/5" />
+                              <span className="text-gray-700 text-xs w-12 text-right">—</span>
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>

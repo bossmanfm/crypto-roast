@@ -14,6 +14,7 @@ export interface RoastResult {
     erc20Count: number
     avgTxPerDay: number
     contractDiversity: number
+    activeChains?: number
   }
 }
 
@@ -169,15 +170,17 @@ export function buildRoastResult(
 
     // ─── AIRDROP HUNTER ──────────────────────────────────────
     case 'airdrop_hunter': {
+      const chains = stats.activeChains || 1
       const roasts = [
-        `${txCount} transactions across ${stats.uniqueContracts} contracts. The checklist energy is radiating.`,
-        "Your wallet history isn't a journey. It's a task list.",
-        "You don't use protocols. You exploit them for future tokens. They know.",
+        `${txCount} transactions across ${stats.uniqueContracts} contracts on ${chains} chains. The checklist energy is radiating.`,
+        `${chains} chains, same strategy: interact once, disappear, wait for token. They know.`,
+        "Your wallet history isn't a journey. It's a farming operation.",
+        "You don't use protocols. You audit them for future airdrop eligibility.",
         `${avgTxStr} but you've never actually used anything you've touched.`,
         "Sybil detection teams have a folder named after your address.",
-        "You interact with every protocol exactly once. That's not activity, that's audition.",
+        "You interact with every protocol exactly once. That's not activity, that's an audition.",
         "Your on-chain fingerprint screams: I am here for the airdrop and nothing else.",
-        "Protocol teams see wallets like yours and write better airdrop criteria.",
+        "Protocol teams see wallets like yours and rewrite their airdrop criteria.",
         "Technically active. Spiritually a parasite.",
       ]
       return {
