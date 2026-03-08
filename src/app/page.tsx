@@ -63,6 +63,8 @@ export default function Home() {
         uniqueContracts: data.uniqueContracts,
         walletAgeDays: data.walletAgedays,
         erc20Count: data.erc20Count,
+        avgTxPerDay: data.avgTxPerDay,
+        contractDiversity: data.contractDiversity,
       })
       setRoast(result)
     } catch {
