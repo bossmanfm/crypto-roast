@@ -5,221 +5,202 @@ export interface RoastResult {
   severity: 'mild' | 'spicy' | 'savage'
   emoji: string
   degenScore: number
-}
-
-// Hash address to number (deterministic per wallet)
-function hashAddress(address: string): number {
-  let hash = 0
-  for (let i = 0; i < address.length; i++) {
-    const char = address.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash = hash & hash
+  stats: {
+    txCount: number
+    failedTxs: number
+    nftCount: number
+    uniqueContracts: number
+    walletAgeDays: number
+    erc20Count: number
   }
-  return Math.abs(hash)
 }
 
-// Pick multiple seeds from different parts of address
-function getSeeds(address: string) {
-  const addr = address.toLowerCase().replace('0x', '')
-  const s1 = parseInt(addr.slice(0, 8), 16) || 1
-  const s2 = parseInt(addr.slice(8, 16), 16) || 1
-  const s3 = parseInt(addr.slice(16, 24), 16) || 1
-  const s4 = parseInt(addr.slice(24, 32), 16) || 1
-  const s5 = parseInt(addr.slice(32, 40), 16) || 1
-  return { s1, s2, s3, s4, s5 }
+function pickRoast(roasts: string[], address: string): string {
+  // Deterministic pick from address last 4 chars
+  const seed = parseInt(address.slice(-6), 16) || 0
+  return roasts[seed % roasts.length]
 }
 
-export function generateRoast(
+export function buildRoastResult(
   address: string,
-  balance: string,
-  _txCount: number,
-  _nfts: number,
-  _degenScore: number
+  category: string,
+  degenScore: number,
+  stats: RoastResult['stats']
 ): RoastResult {
-  const { s1, s2, s3, s4, s5 } = getSeeds(address)
-  const hash = hashAddress(address)
+  switch (category) {
+
+    case 'sad_whale': {
+      const roasts = [
+        "Big bag, small brain. Congrats on holding ETH while missing every 10x",
+        "You have more ETH than personality",
+        "Rich wallet, poor life choices",
+        "All that ETH and you still stress-check prices at 3AM",
+        "You're rich but your DeFi yield is -40%. Skill issue.",
+        "Your net worth is high, your IQ is low",
+        "50 ETH, 0 chill. Therapy is cheaper than gas fees.",
+        "The market dumps 5% and you panic. Imagine being this wealthy and this fragile.",
+      ]
+      return {
+        type: 'Anxious Whale', title: '🐋 SAD WHALE',
+        roast: pickRoast(roasts, address),
+        severity: 'spicy', emoji: '🐋😢', degenScore, stats,
+      }
+    }
+
+    case 'paper_hands': {
+      const roasts = [
+        "Your wallet has been sitting longer than your gym membership",
+        "You downloaded MetaMask, got scared, and called it investing",
+        "The only thing you're farming is disappointment",
+        "You've been 'doing research' for 3 years. Still nothing.",
+        "Your wallet activity is flatter than your gains",
+        "You're not hodling. You just forgot this wallet exists.",
+        "Your last transaction was basically in the stone age",
+        "Web3 dreamer, Web0 doer",
+      ]
+      return {
+        type: 'Paper Hands', title: '📝 PAPER HANDS',
+        roast: pickRoast(roasts, address),
+        severity: 'mild', emoji: '📝😅', degenScore, stats,
+      }
+    }
+
+    case 'ghost': {
+      const roasts = [
+        "Your wallet has never been used. Are you even real?",
+        "Zero transactions. Zero NFTs. Maximum existential dread.",
+        "This wallet is emptier than your promises",
+        "You created a wallet and immediately gave up. Valid strategy.",
+      ]
+      return {
+        type: 'Ghost Wallet', title: '👻 GHOST',
+        roast: pickRoast(roasts, address),
+        severity: 'mild', emoji: '👻', degenScore, stats,
+      }
+    }
+
+    case 'gas_waster': {
+      const failedPct = stats.txCount > 0
+        ? Math.round((stats.failedTxs / stats.txCount) * 100)
+        : 0
+      const roasts = [
+        `${failedPct}% of your transactions failed. You're not using blockchain, you're donating to it.`,
+        "Your failed transactions could fund a small country",
+        "You set gas to 1 gwei and wonder why nothing confirms",
+        "Miners love you. Your portfolio doesn't.",
+        "Half your transactions are just expensive errors",
+        "You've gifted more to validators than to your own portfolio",
+        "Your transaction success rate is lower than your dating success rate",
+        "Failed txs: your most consistent on-chain activity",
+      ]
+      return {
+        type: 'Gas Waster', title: '⛽ GAS WASTER',
+        roast: pickRoast(roasts, address),
+        severity: 'savage', emoji: '⛽💸', degenScore, stats,
+      }
+    }
+
+    case 'jpeg_degen': {
+      const roasts = [
+        `${stats.nftCount} NFTs. Not one of them worth the gas you paid.`,
+        "Your NFT portfolio is just a gallery of regrets",
+        "You spent ETH on pictures my grandma could draw",
+        "Those pixels cost more than your rent",
+        "Your 'rare' NFTs are rare because nobody wants them",
+        "You've been rugged more times than a Persian carpet store",
+        "The only thing rare about your NFTs is finding a buyer",
+        "You bought JPEGs, I bought food. We are not the same.",
+        "Your NFT strategy: buy high, pray, cry, repeat",
+      ]
+      return {
+        type: 'JPEG Degen', title: '🖼️ JPEG DEGEN',
+        roast: pickRoast(roasts, address),
+        severity: 'spicy', emoji: '🖼️💸', degenScore, stats,
+      }
+    }
+
+    case 'airdrop_hunter': {
+      const roasts = [
+        "Your wallet screams 'airdrop farmer' louder than a Discord ping",
+        "10 wallets, same IP. Very sneaky. Not sneaky at all.",
+        "You interact with every protocol once then ghost it",
+        "Your 'portfolio' is 90% airdrop tokens worth $0.00001",
+        "Sybil hunters have a poster of your wallet on their wall",
+        "You're not a builder. You're a transaction factory.",
+        "Your wallet history looks like a checklist, not a life",
+        "You've bridged ETH 50 times but never actually used anything",
+        "Linea, zkSync, Starknet, Base, Scroll... You have no loyalty.",
+      ]
+      return {
+        type: 'Airdrop Farmer', title: '🌾 AIRDROP HUNTER',
+        roast: pickRoast(roasts, address),
+        severity: 'spicy', emoji: '🌾💨', degenScore, stats,
+      }
+    }
+
+    case 'certified_degen': {
+      const roasts = [
+        "Your wallet has more red flags than a Chinese New Year parade",
+        "You've rugged yourself more times than actual scammers",
+        "Buying high, selling low — the strategy of legends (in their own mind)",
+        "Your transaction history reads like a horror novel",
+        "Even your mom stopped asking about your 'investments'",
+        "Your DCA strategy: Disaster Continues Always",
+        "You FOMO in, panic sell, repeat. It's a lifestyle.",
+        "Your portfolio is a perfect inverse of the market",
+        "You've never met a shitcoin you didn't like",
+        "You're the liquidity that smarter traders exit into",
+        "Your trading plan: YOLO → REKT → COPE → REPEAT",
+        "You are not early. You are just consistently wrong.",
+        `${stats.txCount} transactions and still not profitable. Talent.`,
+      ]
+      return {
+        type: 'Certified Degen', title: '💀 DEGEN ALERT',
+        roast: pickRoast(roasts, address),
+        severity: 'savage', emoji: '💀🔥', degenScore, stats,
+      }
+    }
+
+    default: {
+      const roasts = [
+        "You're not early, you're just consistently wrong",
+        "Web3 believer, Web2 salary",
+        `You spent $50 in gas to move $20 of tokens. Math genius.`,
+        "Your due diligence is reading 3 tweets and a Discord message",
+        "You're one bad trade away from uninstalling MetaMask",
+        "You're not investing. You're burning money, just slower.",
+        "Your trading plan: Hope → Cope → Rope",
+        "Average in, average out, average life",
+        `${stats.erc20Count} random tokens in your wallet. You collect L's like NFTs.`,
+      ]
+      return {
+        type: 'Average Degen', title: '🎯 MID DEGEN',
+        roast: pickRoast(roasts, address),
+        severity: 'mild', emoji: '🎯😐', degenScore, stats,
+      }
+    }
+  }
+}
+
+// Legacy (fallback if API fails — hash-based)
+export function generateRoastFallback(address: string, balance: string): RoastResult {
+  const seed = parseInt(address.slice(-8), 16) || 1
   const balNum = parseFloat(balance) || 0
+  const categoryRoll = seed % 100
+  const degenScore = (seed % 60) + 20
 
-  // Determine category from address hash (6 categories, distributed evenly)
-  // Use s1 XOR s3 to pick category so it feels "unpredictable"
-  const categoryRoll = ((s1 ^ s3) + s5) % 100
-  const roastPick = s2 % 999  // for picking which line within category
-  const degenScore = (hash % 60) + (s4 % 40) // 0-99, unique per wallet
-
-  // Balance override: if truly rich wallet → Sad Whale
-  if (balNum > 5) {
-    const roasts = [
-      "Big balance, small gains. Whales can be paper hands too",
-      "You're rich but still can't pick a winning token",
-      "All that ETH and you still check prices every 5 minutes",
-      "50 ETH, 0 chill",
-      "Your net worth is high, your IQ is low",
-      "You're the whale that gets liquidated first",
-      "Richest wallet, poorest decisions",
-      "You could've just bought BTC and chilled, but no",
-    ]
-    return {
-      type: 'Anxious Whale',
-      title: '🐋 SAD WHALE',
-      roast: roasts[roastPick % roasts.length],
-      severity: 'spicy',
-      emoji: '🐋😢',
-      degenScore,
-    }
+  const emptyStats = {
+    txCount: 0, failedTxs: 0, nftCount: 0,
+    uniqueContracts: 0, walletAgeDays: 0, erc20Count: 0,
   }
 
-  // Category distribution based on address hash:
-  // 0-19 → Certified Degen (20%)
-  // 20-39 → JPEG Degen (20%)
-  // 40-54 → Paper Hands (15%)
-  // 55-74 → Mid Degen (20%)
-  // 75-89 → Airdrop Hunter (15%)
-  // 90-99 → Gas Waster (10%)
-
-  if (categoryRoll < 20) {
-    const roasts = [
-      "Your wallet has more red flags than a Chinese parade",
-      "You don't trade, you donate to the market",
-      "Buying high, selling low - the strategy of legends (in their own mind)",
-      "Your portfolio is like your dating life - constantly disappointing",
-      "You've rugged yourself more times than actual scammers",
-      "Your transaction history reads like a horror story",
-      "Even your mom stopped asking about your 'investments'",
-      "You've paid more in gas fees than your portfolio is worth",
-      "Your DCA strategy: Disaster Continues Always",
-      "You're the reason exchanges have 'are you sure?' popups",
-      "Your wallet is a museum of bad decisions",
-      "You've been 'early' to every project that died",
-      "Your average buy price is higher than the all-time high",
-      "You FOMO so hard, you buy the top and sell the bottom in the same day",
-      "Your portfolio diversification is just different shades of red",
-      "You've been rekt so many times, it's basically your personality",
-      "Your stop-loss is 'close my eyes and hope'",
-    ]
-    return {
-      type: 'Certified Degen',
-      title: '💀 DEGEN ALERT',
-      roast: roasts[roastPick % roasts.length],
-      severity: 'savage',
-      emoji: '💀🔥',
-      degenScore,
-    }
-  }
-
-  if (categoryRoll < 40) {
-    const roasts = [
-      "Your JPEG collection is worth less than the gas you spent",
-      "NFTs: The art of buying screenshots you could've saved",
-      "Those monkeys aren't making you rich, they're just making you poor",
-      "Your NFT portfolio is just a gallery of regrets",
-      "You spent 5 ETH on pictures my grandma could draw",
-      "Your 'rare' NFTs are rare because nobody wants them",
-      "You've been rugged more times than a Persian carpet store",
-      "Your wallet is a graveyard of dead projects",
-      "The only thing rare about your NFTs is finding a buyer",
-      "You bought JPEGs, I bought food. We're not the same",
-      "Your NFT strategy: buy high, pray, cry",
-      "Those pixels cost more than your car payment",
-    ]
-    return {
-      type: 'JPEG Collector',
-      title: '🖼️ JPEG DEGEN',
-      roast: roasts[roastPick % roasts.length],
-      severity: 'spicy',
-      emoji: '🖼️💸',
-      degenScore,
-    }
-  }
-
-  if (categoryRoll < 54) {
-    const roasts = [
-      "Your wallet is so empty, even dust bunnies moved out",
-      "You call that a wallet? That's a participation trophy",
-      "Your wallet has been sitting longer than your gym membership",
-      "You're not holding, you're just forgotten",
-      "Your crypto journey: downloaded MetaMask, got scared, left",
-      "The only thing you're farming is disappointment",
-      "You've been 'doing research' for 3 years with 0 trades",
-      "Your wallet activity is as dead as your motivation",
-      "You're not diamond hands, you're just hands",
-      "Your last transaction was literally before COVID ended",
-    ]
-    return {
-      type: 'Paper Hands',
-      title: '📝 PAPER HANDS',
-      roast: roasts[roastPick % roasts.length],
-      severity: 'mild',
-      emoji: '📝😅',
-      degenScore,
-    }
-  }
-
-  if (categoryRoll < 74) {
-    const roasts = [
-      "You're not early, you're just consistently wrong",
-      "Your trading strategy? Hope and cope",
-      "Web3 believer, Web2 salary",
-      "You spent $50 in gas to buy $20 of tokens. Math genius",
-      "Your portfolio is a perfect inverse of the market",
-      "You're the reason 'not financial advice' exists",
-      "Your due diligence is reading 3 tweets and a Discord message",
-      "You've never met a shitcoin you didn't like",
-      "You're one bad trade away from uninstalling MetaMask",
-      "Your wallet summary: bought the hype, sold the news",
-      "You're not investing, you're just burning money slower",
-      "Your trading plan: YOLO → REKT → REPEAT",
-      "You're the liquidity that smarter traders exit into",
-    ]
-    return {
-      type: 'Average Degen',
-      title: '🎯 MID DEGEN',
-      roast: roasts[roastPick % roasts.length],
-      severity: 'mild',
-      emoji: '🎯😐',
-      degenScore,
-    }
-  }
-
-  if (categoryRoll < 89) {
-    const roasts = [
-      "Your wallet screams 'airdrop farmer' louder than a Discord notification",
-      "10 different wallets, same IP. Very sneaky, not sneaky at all",
-      "You interact with every protocol once and disappear",
-      "Your 'portfolio' is 90% airdrop tokens worth $0.00001",
-      "Sybil hunter's favorite target: you",
-      "You've done 50 bridge transactions but never used a single dApp",
-      "Your strategy: spam transactions, hope, repeat",
-      "You're not a builder, you're a transaction factory",
-      "Your wallet history looks like a checklist, not a life",
-    ]
-    return {
-      type: 'Airdrop Farmer',
-      title: '🌾 AIRDROP HUNTER',
-      roast: roasts[roastPick % roasts.length],
-      severity: 'spicy',
-      emoji: '🌾💨',
-      degenScore,
-    }
-  }
-
-  // 90-99: Gas Waster
-  const roasts = [
-    "You've spent more on gas than on rent",
-    "Your failed transactions could fund a small country",
-    "You set gas to 1 gwei and wonder why nothing confirms",
-    "Your gas optimization: none. Your wallet balance: gone.",
-    "You've gifted more to miners than to your own portfolio",
-    "Gas wasted: could've bought a Tesla. Didn't.",
-    "You send 1 ETH and spend 0.5 ETH on gas. Sounds right.",
-  ]
-  return {
-    type: 'Gas Waster',
-    title: '⛽ GAS WASTER',
-    roast: roasts[roastPick % roasts.length],
-    severity: 'savage',
-    emoji: '⛽💸',
-    degenScore,
-  }
+  if (balNum > 5) return buildRoastResult(address, 'sad_whale', degenScore, emptyStats)
+  if (categoryRoll < 20) return buildRoastResult(address, 'certified_degen', degenScore, emptyStats)
+  if (categoryRoll < 40) return buildRoastResult(address, 'jpeg_degen', degenScore, emptyStats)
+  if (categoryRoll < 55) return buildRoastResult(address, 'paper_hands', degenScore, emptyStats)
+  if (categoryRoll < 70) return buildRoastResult(address, 'airdrop_hunter', degenScore, emptyStats)
+  if (categoryRoll < 85) return buildRoastResult(address, 'gas_waster', degenScore, emptyStats)
+  return buildRoastResult(address, 'mid_degen', degenScore, emptyStats)
 }
 
 export function calculateDegenScore(
