@@ -306,6 +306,17 @@ export default function Home() {
                     </p>
                   </div>
 
+                  {/* Degen Score Bar */}
+                  <div className="mb-4">
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="text-gray-500">Degen Score</span>
+                      <span className="text-red-400 font-bold">{roast.degenScore}/100</span>
+                    </div>
+                    <div className="stat-bar">
+                      <div className="stat-bar-fill" style={{ width: `${roast.degenScore}%` }} />
+                    </div>
+                  </div>
+
                   {/* Address */}
                   <div className="flex items-center justify-center gap-2 text-gray-500 text-xs font-mono">
                     <span className="w-1.5 h-1.5 bg-gray-600 rounded-full" />
