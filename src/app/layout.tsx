@@ -1,14 +1,16 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import { Providers } from '../components/Providers'
 
-const inter = Inter({ subsets: ['latin'] })
-
 export const metadata: Metadata = {
-  title: 'Crypto Roast 🔥',
-  description: 'Get roasted based on your on-chain activity',
+  title: 'Crypto Roast 🔥 — Get destroyed on-chain',
+  description: 'Connect your wallet. Get roasted based on your on-chain activity. Share the pain.',
+  openGraph: {
+    title: 'Crypto Roast 🔥',
+    description: 'Get roasted based on your on-chain activity',
+    images: ['/og.png'],
+  },
 }
 
 export default function RootLayout({
@@ -18,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

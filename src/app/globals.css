@@ -2,44 +2,242 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 15;
-  --background-end-rgb: 5, 5, 8;
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-    to bottom,
-    rgb(var(--background-start-rgb)),
-    rgb(var(--background-end-rgb))
-  );
+  font-family: 'Space Grotesk', sans-serif;
+  background: #080810;
+  color: #ffffff;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-.card {
-  @apply bg-card rounded-2xl border border-gray-800 p-6;
+/* Animated background */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(239,68,68,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239,68,68,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
-.btn-primary {
-  @apply bg-accent hover:bg-accent-hover text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed;
+.glow-red {
+  box-shadow: 0 0 40px rgba(239, 68, 68, 0.3), 0 0 80px rgba(239, 68, 68, 0.1);
 }
 
-.roast-card {
-  @apply bg-gradient-to-br from-gray-900 to-black border-2 border-roast rounded-2xl p-8 text-center relative overflow-hidden;
+.glow-red-sm {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
 }
 
-.roast-card::before {
+.text-gradient {
+  background: linear-gradient(135deg, #ff6b35, #ef4444, #dc2626);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+}
+
+.card-glass:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  transition: border-color 0.3s ease;
+}
+
+.btn-fire {
+  background: linear-gradient(135deg, #ff6b35, #ef4444);
+  border: none;
+  color: white;
+  font-weight: 800;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-fire::before {
   content: '';
-  @apply absolute inset-0 bg-roast/10;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #ff8c55, #f97316);
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-.flame {
-  animation: flicker 2s infinite;
+.btn-fire:hover::before {
+  opacity: 1;
 }
 
+.btn-fire:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(239, 68, 68, 0.5);
+}
+
+.btn-fire:active {
+  transform: translateY(0);
+}
+
+.btn-fire:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-fire span {
+  position: relative;
+  z-index: 1;
+}
+
+.tab-active {
+  background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(239,68,68,0.1));
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #ef4444;
+}
+
+.input-field {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: white;
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 13px;
+  transition: all 0.2s;
+  width: 100%;
+  padding: 14px 16px;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.05);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.input-field::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
+/* Roast Card Styles */
+.roast-result-card {
+  background: linear-gradient(135deg, #0f0f1a, #1a0a0a);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.roast-result-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(239,68,68,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.severity-savage { 
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: white;
+}
+.severity-spicy { 
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+  color: white;
+}
+.severity-mild { 
+  background: linear-gradient(135deg, #ca8a04, #a16207);
+  color: white;
+}
+
+/* Flame animation */
 @keyframes flicker {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
+  0%, 100% { transform: scale(1) rotate(-2deg); }
+  25% { transform: scale(1.05) rotate(2deg); }
+  50% { transform: scale(0.98) rotate(-1deg); }
+  75% { transform: scale(1.03) rotate(1deg); }
 }
+
+.flame-icon {
+  display: inline-block;
+  animation: flicker 2.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+/* Loading dots */
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  display: inline-block;
+  animation: bounce 1.4s ease-in-out infinite;
+}
+.dot:nth-child(1) { animation-delay: 0s; }
+.dot:nth-child(2) { animation-delay: 0.16s; }
+.dot:nth-child(3) { animation-delay: 0.32s; }
+
+/* Slide up animation */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Shine animation on roast card */
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  animation: shine 3s ease-in-out infinite;
+}
+
+/* Stats bar */
+.stat-bar {
+  background: rgba(255,255,255,0.05);
+  border-radius: 100px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, #ef4444, #f97316);
+  transition: width 1s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #080810; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
