@@ -3,7 +3,6 @@
 import { useState, useRef } from 'react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount, useBalance } from 'wagmi'
-import { toPng } from 'html-to-image'
 import { generateRoast, calculateDegenScore, type RoastResult } from '@/utils/roast'
 
 export default function Home() {
@@ -33,11 +32,16 @@ export default function Home() {
 
   const downloadImage = async () => {
     if (!cardRef.current) return
-    const dataUrl = await toPng(cardRef.current)
-    const link = document.createElement('a')
-    link.download = `crypto-roast-${address?.slice(0, 6)}.png`
-    link.href = dataUrl
-    link.click()
+    try {
+      const { toPng } = await import('html-to-image')
+      const dataUrl = await toPng(cardRef.current)
+      const link = document.createElement('a')
+      link.download = `crypto-roast-${address?.slice(0, 6)}.png`
+      link.href = dataUrl
+      link.click()
+    } catch {
+      alert('Download failed. Try screenshotting manually!')
+    }
   }
 
   const shareText = roast 
